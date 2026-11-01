@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ana Maria Valkaria — Cientista de Dados</title>
+<meta name="description" content="Portfólio de Ana Maria Valkaria, cientista de dados: modelagem de dados em grafos com Neo4j e análise de sobrevivência em R.">
+<meta name="theme-color" content="#0a0a0f">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+<script>document.documentElement.classList.add('js');</script>
+<style>
+  /* ---------- Tokens ---------- */
+  :root {
+    --bg: #0a0a0f;
+    --surface: #101017;
+    --surface-2: #15151e;
+    --line: rgba(255, 255, 255, 0.08);
+    --line-strong: rgba(255, 255, 255, 0.16);
+    --text: #e8e8ef;
+    --muted: #9b9bae;
+    --faint: #6a6a7c;
+    --accent: #5fd4c8;
+    --accent-soft: rgba(95, 212, 200, 0.12);
+    --accent-line: rgba(95, 212, 200, 0.45);
+    --font-head: "Outfit", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-body: "Source Sans 3", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+    --radius: 14px;
+    --gutter: clamp(20px, 5vw, 56px);
+    --maxw: 1120px;
+    --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+
+  /* ---------- Base ---------- */
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 84px; -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 17px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  img, svg { display: block; max-width: 100%; }
+  a { color: inherit; text-decoration: none; }
+  h1, h2, h3 { font-family: var(--font-head); font-weight: 500; line-height: 1.15; margin: 0; letter-spacing: -0.01em; }
+  p { margin: 0; }
+  ul { margin: 0; padding: 0; list-style: none; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+  ::selection { background: var(--accent); color: #04110f; }
+
+  .wrap { width: 100%; max-width: var(--maxw); margin: 0 auto; padding: 0 var(--gutter); }
+  section { padding: clamp(72px, 11vw, 128px) 0; }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .eyebrow::before { content: ""; width: 28px; height: 1px; background: var(--accent-line); }
+  .section-title { font-size: clamp(30px, 4.4vw, 44px); max-width: 18ch; }
+  .section-head { margin-bottom: clamp(36px, 5vw, 56px); }
+
+  /* ---------- Reveal on scroll ---------- */
+  .js .reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.8s var(--ease), transform 0.8s var(--ease); transition-delay: var(--d, 0s); }
+  .js .reveal.in { opacity: 1; transform: none; }
+
+  /* ---------- Nav ---------- */
+  .nav {
+    position: fixed; inset: 0 0 auto 0; z-index: 50;
+    border-bottom: 1px solid transparent;
+    transition: background 0.35s var(--ease), border-color 0.35s var(--ease), backdrop-filter 0.35s var(--ease);
+  }
+  .nav.scrolled {
+    background: rgba(10, 10, 15, 0.72);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    backdrop-filter: blur(14px) saturate(140%);
+    border-bottom-color: var(--line);
+  }
+  .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 68px; }
+  .brand { font-family: var(--font-head); font-weight: 500; font-size: 18px; letter-spacing: 0.01em; display: inline-flex; align-items: center; gap: 10px; }
+  .brand-mark { width: 22px; height: 22px; }
+  .nav-links { display: flex; align-items: center; gap: 30px; }
+  .nav-links a { font-size: 15px; color: var(--muted); transition: color 0.25s var(--ease); position: relative; }
+  .nav-links a:hover { color: var(--text); }
+  .nav-links a.cta { color: var(--text); border: 1px solid var(--line-strong); padding: 7px 16px; border-radius: 999px; transition: border-color 0.25s var(--ease), background 0.25s var(--ease); }
+  .nav-links a.cta:hover { border-color: var(--accent-line); background: var(--accent-soft); }
+  .menu-btn { display: none; background: none; border: 0; color: var(--text); width: 40px; height: 40px; margin-right: -8px; cursor: pointer; }
+  .menu-btn span { display: block; width: 20px; height: 1.5px; background: currentColor; margin: 5px auto; transition: transform 0.3s var(--ease), opacity 0.2s; }
+  .menu-btn[aria-expanded="true"] span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+  .menu-btn[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+  .menu-btn[aria-expanded="true"] span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+  @media (max-width: 720px) {
+    .menu-btn { display: block; }
+    .nav-links {
+      position: absolute; top: 68px; left: 0; right: 0;
+      flex-direction: column; align-items: flex-start; gap: 0;
+      background: rgba(10, 10, 15, 0.96);
+      -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--line);
+      padding: 8px var(--gutter) 20px;
+      visibility: hidden; opacity: 0; transform: translateY(-8px);
+      transition: opacity 0.25s var(--ease), transform 0.25s var(--ease), visibility 0.25s;
+    }
+    .nav-links.open { visibility: visible; opacity: 1; transform: none; }
+    .nav-links a { width: 100%; padding: 14px 0; border-bottom: 1px solid var(--line); font-size: 17px; }
+    .nav-links a.cta { border: 0; border-radius: 0; padding: 14px 0; border-bottom: 1px solid var(--line); }
+  }
+
+  /* ---------- Buttons ---------- */
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: var(--font-head); font-weight: 500; font-size: 15px;
+    padding: 13px 24px; border-radius: 999px;
+    border: 1px solid var(--line-strong);
+    color: var(--text);
+    transition: transform 0.25s var(--ease), border-color 0.25s var(--ease), background 0.25s var(--ease), color 0.25s var(--ease);
+  }
+  .btn svg { width: 15px; height: 15px; transition: transform 0.25s var(--ease); }
+  .btn:hover { border-color: var(--accent-line); background: var(--accent-soft); transform: translateY(-1px); }
+  .btn:hover svg { transform: translate(2px, -2px); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #04110f; }
+  .btn.primary:hover { background: #7be3d8; border-color: #7be3d8; }
+  .btn.primary:hover svg.down { transform: translateY(2px); }
+
+  /* ---------- Hero ---------- */
+  .hero { min-height: 100svh; display: flex; align-items: center; padding: 120px 0 72px; position: relative; overflow: hidden; }
+  .hero::before {
+    content: ""; position: absolute; width: 720px; height: 720px; right: -240px; top: 6%;
+    background: radial-gradient(closest-side, rgba(95, 212, 200, 0.09), transparent 70%);
+    pointer-events: none;
+  }
+  .hero-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: clamp(32px, 6vw, 80px); align-items: center; position: relative; }
+  .hero h1 { font-size: clamp(44px, 7.4vw, 84px); font-weight: 400; letter-spacing: -0.025em; }
+  .hero h1 em { font-style: normal; color: var(--accent); font-weight: 300; display: block; font-size: 0.5em; letter-spacing: -0.01em; margin-top: 16px; }
+  .hero-lead { margin-top: 28px; max-width: 46ch; font-size: clamp(17px, 2vw, 19px); color: var(--muted); }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 40px; }
+
+  .hero-art { position: relative; border: 1px solid var(--line); border-radius: 20px; background: linear-gradient(180deg, var(--surface), rgba(16,16,23,0.4)); padding: 22px 22px 14px; }
+  .hero-art svg { width: 100%; height: auto; overflow: visible; }
+  .art-cap { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; color: var(--faint); margin-top: 10px; }
+  .draw { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 2.4s var(--ease) 0.4s forwards; }
+  .draw.d2 { animation-delay: 0.9s; }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  .pop { opacity: 0; animation: pop 0.7s var(--ease) forwards; }
+  @keyframes pop { to { opacity: 1; } }
+
+  @media (max-width: 880px) {
+    .hero { min-height: auto; padding-top: 112px; }
+    .hero-grid { grid-template-columns: 1fr; }
+    .hero-art { max-width: 520px; }
+  }
+
+  /* ---------- About ---------- */
+  .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(36px, 6vw, 88px); }
+  .about-text p { color: var(--muted); font-size: 18px; }
+  .about-text p + p { margin-top: 20px; }
+  .skill-group + .skill-group { margin-top: 30px; }
+  .skill-group h3 { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint); font-weight: 400; margin-bottom: 14px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag {
+    font-size: 14px; padding: 6px 14px; border-radius: 999px;
+    border: 1px solid var(--line-strong); color: var(--text); background: var(--surface);
+    transition: border-color 0.25s var(--ease), color 0.25s var(--ease);
+  }
+  .tag:hover { border-color: var(--accent-line); color: var(--accent); }
+  @media (max-width: 820px) { .about-grid { grid-template-columns: 1fr; } }
+
+  /* ---------- Projects ---------- */
+  .projects { display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px; }
+  .card {
+    position: relative; display: flex; flex-direction: column;
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    overflow: hidden;
+    transition: transform 0.4s var(--ease), border-color 0.4s var(--ease), box-shadow 0.4s var(--ease);
+  }
+  .card:hover {
+    transform: translateY(-5px);
+    border-color: var(--accent-line);
+    box-shadow: 0 18px 50px -20px rgba(95, 212, 200, 0.25), 0 0 0 1px rgba(95, 212, 200, 0.12);
+  }
+  .card-art { height: 148px; background: var(--surface-2); border-bottom: 1px solid var(--line); position: relative; overflow: hidden; }
+  .card-art svg { width: 100%; height: 100%; }
+  .card-art .stroke { stroke: var(--faint); transition: stroke 0.4s var(--ease); }
+  .card-art .fill { fill: var(--faint); transition: fill 0.4s var(--ease); }
+  .card-art .hot { stroke: var(--accent); }
+  .card-art .hotfill { fill: var(--accent); }
+  .card:hover .card-art .stroke { stroke: #8f8fa3; }
+  .card:hover .card-art .hot { stroke: #8ff0e5; }
+  .card-lang {
+    position: absolute; left: 16px; top: 14px;
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em;
+    color: var(--text); background: rgba(10, 10, 15, 0.7); border: 1px solid var(--line-strong);
+    padding: 4px 10px 4px 8px; border-radius: 999px; display: inline-flex; align-items: center; gap: 8px;
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  }
+  .card-lang i { width: 8px; height: 8px; border-radius: 2px; background: var(--accent); display: block; }
+  .card-lang i.round { border-radius: 50%; }
+  .card-body { padding: 26px 26px 28px; display: flex; flex-direction: column; flex: 1; }
+  .card h3 { font-size: 22px; }
+  .card h3 a::after { content: ""; position: absolute; inset: 0; z-index: 1; }
+  .card-sub { font-family: var(--font-mono); font-size: 12px; color: var(--faint); margin-top: 6px; letter-spacing: 0.02em; }
+  .card p { color: var(--muted); font-size: 16px; margin-top: 16px; }
+  .card .tags { margin-top: auto; padding-top: 22px; }
+  .card .tag { font-size: 13px; padding: 4px 11px; }
+  .card-link { margin-top: 22px; display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-head); font-size: 14px; color: var(--accent); }
+  .card-link svg { width: 14px; height: 14px; transition: transform 0.25s var(--ease); }
+  .card:hover .card-link svg { transform: translate(3px, -3px); }
+  @media (max-width: 820px) { .projects { grid-template-columns: 1fr; } }
+
+  /* ---------- Timeline ---------- */
+  .timeline { position: relative; max-width: 760px; }
+  .timeline::before { content: ""; position: absolute; left: 6px; top: 8px; bottom: 8px; width: 1px; background: linear-gradient(var(--line-strong), var(--line)); }
+  .t-item { position: relative; padding-left: 40px; }
+  .t-item + .t-item { margin-top: 44px; }
+  .t-item::before {
+    content: ""; position: absolute; left: 0; top: 8px; width: 13px; height: 13px; border-radius: 50%;
+    background: var(--bg); border: 1.5px solid var(--accent);
+    box-shadow: 0 0 0 5px var(--bg);
+  }
+  .t-meta { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; color: var(--accent); text-transform: uppercase; }
+  .t-item h3 { font-size: 22px; margin-top: 8px; }
+  .t-org { color: var(--faint); font-size: 15px; margin-top: 2px; }
+  .t-item p { color: var(--muted); margin-top: 12px; max-width: 60ch; }
+
+  /* ---------- Contact ---------- */
+  .contact { border-top: 1px solid var(--line); background: radial-gradient(ellipse at 50% 120%, rgba(95, 212, 200, 0.07), transparent 60%); }
+  .contact h2 { font-size: clamp(34px, 5.6vw, 64px); font-weight: 400; max-width: 16ch; letter-spacing: -0.02em; }
+  .contact-lead { color: var(--muted); max-width: 48ch; margin-top: 22px; font-size: 18px; }
+  .contact-mail { display: inline-block; margin-top: 36px; font-family: var(--font-head); font-size: clamp(19px, 3.2vw, 30px); font-weight: 300; border-bottom: 1px solid var(--accent-line); padding-bottom: 6px; word-break: break-all; transition: color 0.25s var(--ease), border-color 0.25s var(--ease); }
+  .contact-mail:hover { color: var(--accent); border-color: var(--accent); }
+  .contact-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 36px; }
+
+  footer { border-top: 1px solid var(--line); padding: 28px 0; color: var(--faint); font-size: 14px; }
+  .foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation-duration: 0.01ms !important; animation-delay: 0s !important; transition-duration: 0.01ms !important; }
+    .draw { stroke-dashoffset: 0; }
+    .pop { opacity: 1; }
+    .js .reveal { opacity: 1; transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="nav" id="nav">
+  <div class="wrap nav-inner">
+    <a href="#inicio" class="brand" aria-label="Ana Maria Valkaria, início">
+      <svg class="brand-mark" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" aria-hidden="true">
+        <circle cx="6" cy="17" r="2.4"/><circle cx="18" cy="6" r="2.4"/><circle cx="18" cy="18" r="2.4"/>
+        <path d="M7.8 15.6 16.2 7.6M8.4 17h7.2" stroke-linecap="round"/>
+      </svg>
+      Ana Maria Valkaria
+    </a>
+    <button class="menu-btn" id="menuBtn" aria-label="Abrir menu" aria-expanded="false" aria-controls="navLinks"><span></span><span></span><span></span></button>
+    <nav class="nav-links" id="navLinks" aria-label="Principal">
+      <a href="#sobre">Sobre</a>
+      <a href="#projetos">Projetos</a>
+      <a href="#trajetoria">Trajetória</a>
+      <a href="#contato" class="cta">Contato</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <!-- HERO -->
+  <section class="hero" id="inicio">
+    <div class="wrap hero-grid">
+      <div>
+        <p class="eyebrow reveal">Portfólio</p>
+        <h1 class="reveal" style="--d:.08s">Ana Maria<br>Valkaria<em>Cientista de Dados</em></h1>
+        <p class="hero-lead reveal" style="--d:.16s">
+          Trabalho com modelagem de dados em grafos no Neo4j e com análise estatística em R, incluindo análise de sobrevivência em dados reais de câncer.
+        </p>
+        <div class="hero-actions reveal" style="--d:.24s">
+          <a href="#projetos" class="btn primary">Ver Projetos
+            <svg class="down" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3v10M3.5 8.5 8 13l4.5-4.5"/></svg>
+          </a>
+          <a href="https://github.com/AnaMariaValkaria" class="btn" target="_blank" rel="noopener">GitHub
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 11.5 11.5 4.5M5.5 4.5h6v6"/></svg>
+          </a>
+          <a href="#contato" class="btn">Contato</a>
+        </div>
+      </div>
+
+      <div class="hero-art reveal" style="--d:.2s" aria-hidden="true">
+        <svg viewBox="0 0 520 380" fill="none">
+          <!-- grid -->
+          <g stroke="rgba(255,255,255,0.06)" stroke-width="1">
+            <path d="M40 60H500M40 120H500M40 180H500M40 240H500M40 300H500"/>
+          </g>
+          <!-- axes -->
+          <path d="M40 24V340H500" stroke="rgba(255,255,255,0.22)" stroke-width="1"/>
+          <!-- survival curves -->
+          <path class="draw d2" pathLength="1" d="M40 60H92V104H150V148H210V176H268V214H330V256H392V292H452V318H500" stroke="rgba(255,255,255,0.35)" stroke-width="1.6" stroke-dasharray="1" />
+          <path class="draw" pathLength="1" d="M40 60H110V88H170V122H232V150H292V196H352V236H430V298H500" stroke="var(--accent)" stroke-width="2"/>
+          <!-- censoring ticks -->
+          <g stroke="var(--accent)" stroke-width="1.5" class="pop" style="animation-delay:2.2s">
+            <path d="M140 82v12M262 140v12M322 190v12M392 230v12"/>
+          </g>
+          <!-- graph overlay -->
+          <g class="pop" style="animation-delay:1.6s">
+            <g stroke="rgba(255,255,255,0.28)" stroke-width="1">
+              <path d="M340 52 392 34M340 52 380 92M392 34 452 62M380 92 452 62M452 62 488 110M380 92 430 128"/>
+            </g>
+            <g fill="var(--bg)" stroke="var(--accent)" stroke-width="1.5">
+              <circle cx="340" cy="52" r="6"/><circle cx="392" cy="34" r="5"/><circle cx="452" cy="62" r="7"/>
+            </g>
+            <g fill="var(--bg)" stroke="rgba(255,255,255,0.5)" stroke-width="1.5">
+              <circle cx="380" cy="92" r="5"/><circle cx="488" cy="110" r="4"/><circle cx="430" cy="128" r="4"/>
+            </g>
+          </g>
+          <!-- axis labels -->
+          <g font-family="ui-monospace, Menlo, monospace" font-size="10" fill="rgba(255,255,255,0.35)" letter-spacing="1">
+            <text x="40" y="360">TEMPO</text>
+            <text x="454" y="360">S(t)</text>
+          </g>
+        </svg>
+        <div class="art-cap"><span>grafo + sobrevivência</span><span>Neo4j · R</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOBRE -->
+  <section id="sobre">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow reveal">Sobre</p>
+        <h2 class="section-title reveal" style="--d:.06s">Estrutura nos dados, rigor na análise.</h2>
+      </div>
+      <div class="about-grid">
+        <div class="about-text">
+          <p class="reveal">
+            Construo minha trajetória em ciência de dados em duas frentes que se complementam: modelagem de dados em grafos e estatística aplicada. Nos desafios do bootcamp de Neo4j da DIO, modelei um serviço de streaming de filmes, um serviço de streaming de música e uma rede social, definindo nós, relacionamentos e consultas em Cypher.
+          </p>
+          <p class="reveal" style="--d:.08s">
+            Na estatística, trabalho em R com análise de sobrevivência em bases de câncer de Belo Horizonte e Poços de Caldas, da avaliação da qualidade dos dados até a escolha entre o modelo de Cox e modelos paramétricos AFT. Gosto de documentar o raciocínio por trás das decisões de modelagem, inclusive o que foi revisado pelo caminho.
+          </p>
+        </div>
+        <div class="skills">
+          <div class="skill-group reveal">
+            <h3>Dados em grafos</h3>
+            <ul class="tags">
+              <li class="tag">Neo4j</li><li class="tag">Cypher</li><li class="tag">Modelagem de grafos</li><li class="tag">Arrows.app</li><li class="tag">Sistemas de recomendação</li>
+            </ul>
+          </div>
+          <div class="skill-group reveal" style="--d:.08s">
+            <h3>Estatística</h3>
+            <ul class="tags">
+              <li class="tag">Análise de sobrevivência</li><li class="tag">Métodos não paramétricos</li><li class="tag">Modelo de Cox</li><li class="tag">Modelos AFT</li><li class="tag">Qualidade de dados</li>
+            </ul>
+          </div>
+          <div class="skill-group reveal" style="--d:.16s">
+            <h3>Ferramentas</h3>
+            <ul class="tags">
+              <li class="tag">R</li><li class="tag">R Markdown</li><li class="tag">Git</li><li class="tag">GitHub</li><li class="tag">CSV</li><li class="tag">JSON</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJETOS -->
+  <section id="projetos">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow reveal">Projetos</p>
+        <h2 class="section-title reveal" style="--d:.06s">Quatro projetos, dois jeitos de ler os dados.</h2>
+      </div>
+
+      <div class="projects">
+
+        <!-- Cancer survival -->
+        <article class="card reveal">
+          <div class="card-art">
+            <span class="card-lang"><i></i>R</span>
+            <svg viewBox="0 0 320 148" preserveAspectRatio="xMidYMid slice" fill="none" aria-hidden="true">
+              <path class="stroke" d="M24 20V122H300" stroke-width="1"/>
+              <path class="stroke" d="M24 52H300M24 86H300" stroke-width="1" stroke-opacity=".35"/>
+              <path class="stroke" d="M24 36H80V58H128V76H176V92H228V108H300" stroke-width="1.6" stroke-dasharray="4 4"/>
+              <path class="hot" d="M24 36H64V50H112V66H152V84H196V98H244V114H300" stroke-width="2"/>
+              <g class="hot" stroke-width="1.5"><path d="M88 44v12M170 78v12M222 92v12"/></g>
+            </svg>
+          </div>
+          <div class="card-body">
+            <h3><a href="https://github.com/AnaMariaValkaria/cancer_survival_analysis_project" target="_blank" rel="noopener">Análise de Sobrevivência em Câncer</a></h3>
+            <p class="card-sub">cancer_survival_analysis_project</p>
+            <p>
+              Análise de sobrevivência sobre as bases de dados de Belo Horizonte e Poços de Caldas, a partir de um tipo específico de câncer. O trabalho cobre preparação e avaliação da qualidade dos dados, definição de tempo e evento, métodos não paramétricos e a escolha entre o modelo de Cox e um modelo paramétrico AFT. O repositório reúne dados, scripts e instruções de reprodução.
+            </p>
+            <ul class="tags">
+              <li class="tag">R</li><li class="tag">Análise de sobrevivência</li><li class="tag">Cox</li><li class="tag">AFT</li>
+            </ul>
+            <span class="card-link">Ver repositório
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 11.5 11.5 4.5M5.5 4.5h6v6"/></svg>
+            </span>
+          </div>
+        </article>
+
+        <!-- Music streaming -->
+        <article class="card reveal" style="--d:.08s">
+          <div class="card-art">
+            <span class="card-lang"><i class="round"></i>Neo4j · Cypher</span>
+            <svg viewBox="0 0 320 148" preserveAspectRatio="xMidYMid slice" fill="none" aria-hidden="true">
+              <g class="stroke" stroke-width="1">
+                <path d="M170 84 100 46M170 84 96 110M170 84 236 40M170 84 252 100M170 84 170 26M170 84 170 136M100 46 96 110M236 40 252 100"/>
+              </g>
+              <g class="hot" stroke-width="1.5"><path d="M170 84 236 40M170 84 252 100"/></g>
+              <g stroke-width="1.5" fill="#15151e" class="stroke"><circle cx="100" cy="46" r="7"/><circle cx="96" cy="110" r="6"/><circle cx="170" cy="26" r="5"/><circle cx="170" cy="136" r="5"/></g>
+              <g stroke-width="1.5" fill="#15151e" class="hot"><circle cx="236" cy="40" r="7"/><circle cx="252" cy="100" r="6"/></g>
+              <circle cx="170" cy="84" r="13" fill="var(--accent)" fill-opacity=".14" class="hot" stroke-width="1.8"/>
+              <circle cx="170" cy="84" r="4" class="hotfill"/>
+            </svg>
+          </div>
+          <div class="card-body">
+            <h3><a href="https://github.com/AnaMariaValkaria/music-streaming-service" target="_blank" rel="noopener">Recomendação de Músicas em Grafo</a></h3>
+            <p class="card-sub">music-streaming-service</p>
+            <p>
+              Sistema de recomendação que usa grafos para identificar padrões de escuta e sugerir novas faixas. O modelo representa contas, perfis, sessões, músicas, playlists, artistas, gêneros e subgêneros como nós, e curtir, descurtir, compartilhar, baixar e enfileirar como relacionamentos. As consultas Cypher geram rádios com as músicas mais tocadas e similares, além de listas relacionadas, como a década de 90.
+            </p>
+            <ul class="tags">
+              <li class="tag">Neo4j</li><li class="tag">Cypher</li><li class="tag">Arrows.app</li><li class="tag">R Markdown</li>
+            </ul>
+            <span class="card-link">Ver repositório
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 11.5 11.5 4.5M5.5 4.5h6v6"/></svg>
+            </span>
+          </div>
+        </article>
+
+        <!-- Film streaming -->
+        <article class="card reveal">
+          <div class="card-art">
+            <span class="card-lang"><i class="round"></i>Neo4j · Cypher</span>
+            <svg viewBox="0 0 320 148" preserveAspectRatio="xMidYMid slice" fill="none" aria-hidden="true">
+              <g class="stroke" stroke-width="1">
+                <path d="M96 30 224 44M96 30 224 100M96 66 224 44M96 66 224 128M96 102 224 100M96 102 224 44M96 134 224 128M96 134 224 100"/>
+              </g>
+              <g class="hot" stroke-width="1.6"><path d="M96 66 224 128M96 102 224 100"/></g>
+              <g stroke-width="1.5" fill="#15151e" class="stroke"><circle cx="96" cy="30" r="6"/><circle cx="96" cy="134" r="6"/><circle cx="224" cy="44" r="6"/></g>
+              <g stroke-width="1.5" fill="#15151e" class="hot"><circle cx="96" cy="66" r="6"/><circle cx="96" cy="102" r="6"/><circle cx="224" cy="100" r="6"/><circle cx="224" cy="128" r="6"/></g>
+              <g class="fill" opacity=".5"><rect x="238" y="41" width="22" height="6" rx="3"/><rect x="238" y="97" width="22" height="6" rx="3"/><rect x="238" y="125" width="22" height="6" rx="3"/></g>
+            </svg>
+          </div>
+          <div class="card-body">
+            <h3><a href="https://github.com/AnaMariaValkaria/streaming-project" target="_blank" rel="noopener">Streaming de Filmes em Grafo</a></h3>
+            <p class="card-sub">streaming-project</p>
+            <p>
+              Modelagem de um serviço de streaming de filmes como grafo de propriedades, desenvolvida no bootcamp de Neo4j da DIO. O repositório traz os scripts Cypher de criação da base e dos relacionamentos, duas versões do diagrama do grafo e uma análise do modelo proposto.
+            </p>
+            <ul class="tags">
+              <li class="tag">Neo4j</li><li class="tag">Cypher</li><li class="tag">Modelagem de grafos</li>
+            </ul>
+            <span class="card-link">Ver repositório
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 11.5 11.5 4.5M5.5 4.5h6v6"/></svg>
+            </span>
+          </div>
+        </article>
+
+        <!-- Social network -->
+        <article class="card reveal" style="--d:.08s">
+          <div class="card-art">
+            <span class="card-lang"><i class="round"></i>Neo4j · Cypher</span>
+            <svg viewBox="0 0 320 148" preserveAspectRatio="xMidYMid slice" fill="none" aria-hidden="true">
+              <g class="stroke" stroke-width="1">
+                <path d="M74 52 112 38M74 52 98 98M112 38 98 98M112 38 148 70M98 98 148 70M148 70 196 70M196 70 232 44M196 70 238 100M232 44 238 100M232 44 262 74M238 100 262 74"/>
+              </g>
+              <g class="hot" stroke-width="1.6"><path d="M148 70 196 70"/></g>
+              <g stroke-width="1.5" fill="#15151e" class="stroke">
+                <circle cx="74" cy="52" r="6"/><circle cx="112" cy="38" r="5"/><circle cx="98" cy="98" r="7"/>
+                <circle cx="232" cy="44" r="6"/><circle cx="238" cy="100" r="5"/><circle cx="262" cy="74" r="5"/>
+              </g>
+              <g stroke-width="1.8" fill="#15151e" class="hot"><circle cx="148" cy="70" r="8"/><circle cx="196" cy="70" r="8"/></g>
+            </svg>
+          </div>
+          <div class="card-body">
+            <h3><a href="https://github.com/AnaMariaValkaria/social-network-project" target="_blank" rel="noopener">Rede Social em Grafo</a></h3>
+            <p class="card-sub">social-network-project</p>
+            <p>
+              Modelagem de uma rede social em Neo4j com pessoas, publicações, comentários, mensagens e salvamentos, usando conjuntos de dados do Instagram e do Quora. A documentação registra decisões de modelagem, como manter contadores de curtidas como propriedade do nó ou derivá-los de relacionamentos de curtida contados na consulta.
+            </p>
+            <ul class="tags">
+              <li class="tag">Neo4j</li><li class="tag">Cypher</li><li class="tag">CSV</li><li class="tag">JSON</li>
+            </ul>
+            <span class="card-link">Ver repositório
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 11.5 11.5 4.5M5.5 4.5h6v6"/></svg>
+            </span>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- TRAJETÓRIA -->
+  <section id="trajetoria">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow reveal">Trajetória</p>
+        <h2 class="section-title reveal" style="--d:.06s">Formação prática, projeto a projeto.</h2>
+      </div>
+      <div class="timeline">
+        <article class="t-item reveal">
+          <p class="t-meta">Agosto de 2026</p>
+          <h3>Seminário e relatório técnico em análise de sobrevivência</h3>
+          <p class="t-org">Atividade avaliativa individual</p>
+          <p>Análise completa de sobrevivência sobre uma base de câncer: qualidade dos dados, definição de tempo e evento, métodos não paramétricos e modelagem com Cox ou AFT, com apresentação de 15 minutos seguida de arguição.</p>
+        </article>
+        <article class="t-item reveal">
+          <p class="t-meta">2026</p>
+          <h3>Bootcamp de Neo4j</h3>
+          <p class="t-org">DIO</p>
+          <p>Três desafios de projeto em bancos de dados em grafos: streaming de filmes, streaming de música e rede social, com modelagem, diagramas, scripts Cypher e consultas de negócio.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTATO -->
+  <section class="contact" id="contato">
+    <div class="wrap">
+      <p class="eyebrow reveal">Contato</p>
+      <h2 class="reveal" style="--d:.06s">Vamos conversar sobre dados.</h2>
+      <p class="contact-lead reveal" style="--d:.12s">Se você tem uma pergunta que cabe em um grafo ou em uma curva de sobrevivência, escreva. Respondo com prazer.</p>
+      <a class="contact-mail reveal" style="--d:.18s" href="mailto:developer.crown785@passinbox.com">developer.crown785@passinbox.com</a>
+      <div class="contact-actions reveal" style="--d:.24s">
+        <a href="mailto:developer.crown785@passinbox.com" class="btn primary">Enviar email
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 11.5 11.5 4.5M5.5 4.5h6v6"/></svg>
+        </a>
+        <a href="https://github.com/AnaMariaValkaria" class="btn" target="_blank" rel="noopener">GitHub
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 11.5 11.5 4.5M5.5 4.5h6v6"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <span>&copy; <span id="year">2026</span> Ana Maria Valkaria</span>
+    <span>Cientista de Dados</span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var nav = document.getElementById('nav');
+  var btn = document.getElementById('menuBtn');
+  var links = document.getElementById('navLinks');
+
+  // Nav blur on scroll
+  function onScroll() { nav.classList.toggle('scrolled', window.scrollY > 16); }
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  // Mobile menu
+  function setMenu(open) {
+    btn.setAttribute('aria-expanded', String(open));
+    btn.setAttribute('aria-label', open ? 'Fechar menu' : 'Abrir menu');
+    links.classList.toggle('open', open);
+  }
+  btn.addEventListener('click', function () { setMenu(btn.getAttribute('aria-expanded') !== 'true'); });
+  links.addEventListener('click', function (e) { if (e.target.tagName === 'A') setMenu(false); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setMenu(false); });
+
+  // Reveal on scroll
+  var items = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) { entry.target.classList.add('in'); io.unobserve(entry.target); }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
+    items.forEach(function (el) { io.observe(el); });
+  } else {
+    items.forEach(function (el) { el.classList.add('in'); });
+  }
+
+  document.getElementById('year').textContent = new Date().getFullYear();
+})();
+</script>
+</body>
+</html>
